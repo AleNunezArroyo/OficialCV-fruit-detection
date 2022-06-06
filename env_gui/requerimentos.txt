@@ -2,3 +2,6 @@ sudo apt-get install python3-tk
 pip3 install Pillow
 pip3 install opencv-python
 pip3 install imutils
+
+pip3 install transformers
+pip3 install torch torchvision torchaudio
