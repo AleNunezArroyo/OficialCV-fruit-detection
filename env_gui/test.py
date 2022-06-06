@@ -2,6 +2,7 @@ from tkinter import *
 import cv2
 from PIL import Image, ImageTk
 import time
+import torch
 
 from transformers import BeitFeatureExtractor, BeitForImageClassification
 def iniciar():
@@ -45,9 +46,38 @@ def procesar():
     inputs = feature_extractor(images=image, return_tensors="pt")
     outputs = model(**inputs)
     logits = outputs.logits
-    predicted_class_idx = logits.argmax(-1).item()
-    predicted_class_idx = model.config.id2label[predicted_class_idx]
-    actualizar()
+    
+    # Solo frutas:
+    predict = torch.sort(logits)
+    accuracy, classid = predict[0], predict[1]
+    class_detected = [c.item() for c in (classid[0][-3:])]
+    accuracy_detected = [c.item() for c in (accuracy[0][-3:]/10)]
+    
+    classid_frutas = []
+    frutas = [p for p in range(936, 958)] 
+    for i in class_detected:
+        if i in frutas:
+            classid_frutas.append(i)
+        else:
+            classid_frutas.append(0)
+    frutas = []
+    for j in range(len(classid_frutas)):
+        if j == 0:
+            frutas.append("none")
+        else:
+            frutas.append(model.config.id2label[classid_frutas[j]])
+    
+    accuracy_frutas = [0,0,0]
+    c = 0 
+    for i in range(len(frutas)):
+        if j == "none":
+            accuracy_frutas[c] = 0
+        else:
+            accuracy_frutas[c] = accuracy_detected[c]
+        c = c+1
+    print(frutas)
+    print(accuracy_frutas)
+    actualizar()    
     
 def actualizar():
     global name, predicted_class_idx
